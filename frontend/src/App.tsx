@@ -72,6 +72,38 @@ function App() {
     }
   }, [])
 
+  const [checking, setChecking] = useState(false)
+  const [checkMessage, setCheckMessage] = useState('')
+
+  const runHealthCheck = async () => {
+    setChecking(true)
+    setCheckMessage('')
+    setError('')
+
+    try {
+      const response = await fetch('/check', {
+        method: 'POST',
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message ?? 'Health check failed.')
+      }
+
+      setCheckMessage('Health check completed successfully.')
+      await loadDashboard()
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Could not complete the health check.',
+      )
+    } finally {
+      setChecking(false)
+    }
+  }
+
   useEffect(() => {
     void loadDashboard()
   }, [loadDashboard])
@@ -143,10 +175,19 @@ function App() {
               Monitor API health, performance and incidents in one place.
             </p>
           </div>
-          <button className="refresh-button" onClick={() => void loadDashboard()}>
-            <span>↻</span> {loading ? 'Refreshing…' : 'Refresh data'}
-          </button>
+          <div className="header-actions">
+            <button
+              className="refresh-button check-button"
+              onClick={() => void runHealthCheck()}
+              disabled={checking || loading}
+            >
+              {checking ? 'Checking APIs…' : '▶ Run health check'}
+            </button>
+          </div>
         </header>
+        {checkMessage && (
+          <div className="check-message">{checkMessage}</div>
+        )}
 
         {error && (
           <div className="error-banner">

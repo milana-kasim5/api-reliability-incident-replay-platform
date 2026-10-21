@@ -179,7 +179,7 @@ h1, h2, p {
 
 h1, h2, .metric-value, .performance-number {
   font-family: 'Space Grotesk', sans-serif;
-  color: #a296fc;
+  color: #aea4fb;
 }
 
 h1 {
@@ -692,4 +692,32 @@ tbody td {
   .live-label {
     margin-top: 5px;
   }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.check-button {
+  border-color: #a78bfa;
+  color: #f6f5fc;
+}
+
+.check-button:hover:not(:disabled) {
+  background: rgba(167, 139, 250, 0.12);
+}
+
+.refresh-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.check-message {
+  margin: 12px 0;
+  color: #a7e8c0;
+  font-size: 14px;
 }
