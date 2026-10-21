@@ -1,4 +1,6 @@
 import pytest
+import app as app_module
+import event_queue
 
 from app import app
 from database import get_connection, init_db
@@ -16,10 +18,25 @@ def client(tmp_path, monkeypatch):
 
     init_db()
 
+    # Keep automated tests independent of AWS SQS.
+    monkeypatch.setattr(
+        app_module,
+        "publish_event",
+        event_queue.publish_event
+    )
+
+    # Start each test with a clean local event queue.
+    while event_queue.receive_event() is not None:
+        pass
+
     app.config["TESTING"] = True
 
     with app.test_client() as client:
         yield client
+        
+    # Remove any unprocessed events after each test.
+    while event_queue.receive_event() is not None:
+        pass
 
 
 def test_health_endpoint(client):
