@@ -97,13 +97,28 @@ Open the local URL printed by Vite, typically `http://localhost:5173`.
 | POST | `/events` | Publish an incident event |
 | POST | `/process-next-event` | Process the next event in the local queue |
 
-## AWS Serverless Processing
+## Event Processing Configuration
 
-The project supports an event-driven processing workflow using Amazon SQS and AWS Lambda.
+The application supports two event-processing modes:
 
-When AWS integration is configured, the backend publishes incident events to the configured SQS queue. Lambda processes messages delivered by the queue trigger, and CloudWatch provides execution logs.
+- **Local mode (default):** Events are placed on an in-memory queue and processed by the local event worker.
+- **AWS serverless mode:** Events are sent to Amazon SQS and processed by an AWS Lambda function.
 
-AWS credentials and queue configuration should be supplied securely through environment variables or the appropriate AWS configuration. Do not commit access keys, secrets, or `.env` files.
+### Enable AWS Serverless Processing
+
+1. Create an Amazon SQS queue and deploy the Lambda function using the project's `lambda_function.py` and `serverless_processor.py` files.
+2. Configure the Lambda function with an SQS trigger for your queue.
+3. Configure AWS credentials locally using an AWS CLI profile or another supported AWS credentials provider.
+4. Set the `SQS_QUEUE_URL` environment variable to your queue's URL before starting the Flask application:
+
+   ```bash
+   export SQS_QUEUE_URL="YOUR_SQS_QUEUE_URL"
+   python app.py
+   ```
+
+When `SQS_QUEUE_URL` is configured, the application publishes incident events to AWS SQS. Without it, the application uses the local in-memory queue.
+
+**Note:** Replace the example URL with the URL of your own SQS queue. Do not commit AWS credentials, secret keys, or your local `.env` file to version control. AWS resources may incur charges.
 
 ## Running Tests
 
